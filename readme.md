@@ -2,7 +2,7 @@
 
 English vocabulary trainer -- python script for learning words like quizelet or Anki.
 
-## Using
+## Usage
 
 1. Download (clone) this project.
 2. Place vocabularies in "vocabularies" directory as plain text files.
