@@ -66,9 +66,10 @@ def _get_all_translations(vocabulary: tp.Dict[str, str]) -> tp.List[str]:
 
 
 def list_dicts():
-    for entry in os.scandir(path=CONFIG.voc_path):
-        if entry.is_file:
-            print(entry.name)
+    vocabularies = [entry.name for entry in os.scandir(path=CONFIG.voc_path) if entry.is_file]
+    vocabularies.sort()
+    for name in vocabularies:
+        print(name)
 
 
 def look_words(vocabulary_path: str):
