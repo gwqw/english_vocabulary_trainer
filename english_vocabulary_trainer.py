@@ -95,7 +95,7 @@ def _get_n_random_translations(translations: tp.List[str], n=4, include=None) ->
 
 def _safe_parse_int(value: str) -> int:
     try:
-        return int(value())
+        return int(value)
     except Exception:
         return 0
 
