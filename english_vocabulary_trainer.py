@@ -93,6 +93,13 @@ def _get_n_random_translations(translations: tp.List[str], n=4, include=None) ->
     return res
 
 
+def _safe_parse_int(value: str) -> int:
+    try:
+        return int(value())
+    except Exception:
+        return 0
+
+
 def _learn_with_variants(items: tp.List[tp.Tuple[str, str]], translations: tp.List[str]):
     unlearned = set(items)
     while unlearned:
@@ -106,8 +113,8 @@ def _learn_with_variants(items: tp.List[tp.Tuple[str, str]], translations: tp.Li
             for j, variant in enumerate(variants):
                 print(f'{j+1}: {variant}', end=' ')
             print()
-            guess = int(input())-1
-            if guess >= len(variants) or variants[guess] != item[1]:
+            guess = _safe_parse_int(input())-1
+            if guess < 0 or guess >= len(variants) or variants[guess] != item[1]:
                 print('wrong! correct answer:', item[1])
                 unlearned_new.add(item)
             else:
