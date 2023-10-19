@@ -26,6 +26,7 @@ class Config:
 
 
 CONFIG = Config()
+INF = 1000000
 
 
 def _read_and_update_config() -> None:
@@ -41,18 +42,30 @@ def _read_and_update_config() -> None:
     CONFIG.variants_to_select = int(parameters.get("learn_variants_number", VARIANTS_TO_SELECT))
 
 
-def _read_vocabulary(vocabulary_path: str) -> tp.Dict[str, str]:
-    vocabulary_path = os.path.join(CONFIG.voc_path, vocabulary_path)
+def _read_vocabulary(*vocabulary_paths: tp.List[str], max_size: int = -1) -> tp.Dict[str, str]:
+    if max_size < 0:
+        max_size = INF
+    vocabulary_paths = [os.path.join(CONFIG.voc_path, vocabulary_path) for vocabulary_path in vocabulary_paths]
     vocabulary = {}
-    with open(vocabulary_path) as f:
-        for line in f:
-            line = line.strip()
-            if not line or SEP not in line:
-                continue
-            words = line.split(SEP, maxsplit=1)
-            assert len(words) == 2
-            vocabulary[words[0]] = words[1]
+    for vocabulary_path in vocabulary_paths:
+        with open(vocabulary_path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or SEP not in line:
+                    continue
+                words = line.split(SEP, maxsplit=1)
+                assert len(words) == 2
+                vocabulary[words[0]] = words[1]
+                if len(vocabulary) >= max_size:
+                    break
+        if len(vocabulary) >= max_size:
+            break
+
     return vocabulary
+
+
+def _check_vocabulary(vocabulary: tp.Dict[str, str]) -> bool:
+    return bool(vocabulary)
 
 
 def _get_shuffled_list(vocabulary: tp.Dict[str, str]) -> tp.List[tp.Tuple[str, str]]:
@@ -72,8 +85,7 @@ def list_dicts():
         print(name)
 
 
-def look_words(vocabulary_path: str):
-    vocabulary = _read_vocabulary(vocabulary_path)
+def look_words(vocabulary: tp.Dict[str, str]) -> None:
     items = _get_shuffled_list(vocabulary)
     n = len(items)
     for i, item in enumerate(items):
@@ -140,21 +152,27 @@ def _learn_writing(items):
         unlearned = unlearned_new
 
 
-def learn_words(vocabulary_path: str):
+def learn_words(vocabulary: tp.Dict[str, str]) -> None:
     """select translation from english from variants"""
-    vocabulary = _read_vocabulary(vocabulary_path)
     items = _get_shuffled_list(vocabulary)
     tranlations = _get_all_translations(vocabulary)
     print("select correct variant (type number and press enter)")
     _learn_with_variants(items, tranlations)
 
 
-def test_words(vocabulary_path: str):
+def test_words(vocabulary: tp.Dict[str, str]) -> None:
     """learn english writing"""
-    vocabulary = _read_vocabulary(vocabulary_path)
     items = _get_shuffled_list(vocabulary)
     print("write english translation to words")
     _learn_writing(items)
+
+
+def _read_and_check_vocabulary(args: tp.List[str]) -> tp.Dict[str, str]:
+    vocabulary = _read_vocabulary(*args)
+    if not _check_vocabulary(vocabulary):
+        print("error: no vocabulary filename or empty vocabulary")
+        sys.exit()
+    return vocabulary
 
 
 def main():
@@ -163,9 +181,9 @@ def main():
         """
 Program for learing new words:
     list -- list all availiable dictionaries
-    look <dictname> -- look at words and their translations
-    learn <dictname> -- learn words (choose correct translation from variants)
-    test <dictname> -- test words (type word by its translation)
+    look <dictname>[ <dictname>...] -- look at words and their translations
+    learn <dictname>[ <dictname>...] -- learn words (choose correct translation from variants)
+    test <dictname>[ <dictname>...] -- test words (type word by its translation)
         """)
         sys.exit()
 
@@ -175,11 +193,14 @@ Program for learing new words:
     if command == 'list':
         list_dicts()
     elif command == 'look':
-        look_words(sys.argv[2])
+        vocabulary = _read_and_check_vocabulary(sys.argv[2:])
+        look_words(vocabulary)
     elif command == 'learn':
-        learn_words(sys.argv[2])
+        vocabulary = _read_and_check_vocabulary(sys.argv[2:])
+        learn_words(vocabulary)
     elif command == 'test':
-        test_words(sys.argv[2])
+        vocabulary = _read_and_check_vocabulary(sys.argv[2:])
+        test_words(vocabulary)
     else:
         print('unknown command:', command)
 
