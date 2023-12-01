@@ -21,4 +21,5 @@ This trainer can be configured using `english_vocabulary_trainer.cfg`.
 Options:
 - `look_delay_time_s` -- sleep time for "look" mode,
 - `vocabulary_dir` -- name of vocabulary directory,
-- `learn_variants_number` -- number of shown variants of translation for "learn" mode.
+- `learn_variants_number` -- number of shown variants of translation for "learn" mode,
+- `separator_for_learn` -- separator for output variants in "look" mode. Possible values: `space`, `tab`, `eol`.

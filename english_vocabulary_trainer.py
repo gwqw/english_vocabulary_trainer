@@ -16,6 +16,13 @@ SLEEP_TIME = 2
 VOC_PATH = "vocabularies"
 VARIANTS_TO_SELECT = 4
 SEP = '\t'
+SEP_LEARN = ' '
+
+SEPARATORS = {
+    "space": ' ',
+    "tab": '\t',
+    "eol": '\n',
+}
 
 
 @dataclass
@@ -23,6 +30,7 @@ class Config:
     sleep_time: int = SLEEP_TIME
     voc_path: str = VOC_PATH
     variants_to_select: int = VARIANTS_TO_SELECT
+    separator_for_learn: str = SEP_LEARN
 
 
 CONFIG = Config()
@@ -40,6 +48,10 @@ def _read_and_update_config() -> None:
     CONFIG.sleep_time = int(parameters.get("look_delay_time_s", SLEEP_TIME))
     CONFIG.voc_path = parameters.get("vocabulary_dir", VOC_PATH)
     CONFIG.variants_to_select = int(parameters.get("learn_variants_number", VARIANTS_TO_SELECT))
+    CONFIG.separator_for_learn = SEPARATORS.get(
+        parameters.get("separator_for_learn", "space").lower(),
+        SEP_LEARN
+    )
 
 
 def _read_vocabulary(*vocabulary_paths: tp.List[str], max_size: int = -1) -> tp.Dict[str, str]:
@@ -123,7 +135,7 @@ def _learn_with_variants(items: tp.List[tp.Tuple[str, str]], translations: tp.Li
                 translations, n=CONFIG.variants_to_select, include=item[1])
             random.shuffle(variants)
             for j, variant in enumerate(variants):
-                print(f'{j+1}: {variant}', end=' ')
+                print(f'{j+1}: {variant}', end=CONFIG.separator_for_learn)
             print()
             guess = _safe_parse_int(input())-1
             if guess < 0 or guess >= len(variants) or variants[guess] != item[1]:
