@@ -67,7 +67,7 @@ def _read_vocabulary(*vocabulary_paths: tp.List[str], max_size: int = -1) -> tp.
                     continue
                 words = line.split(SEP, maxsplit=1)
                 assert len(words) == 2
-                vocabulary[words[0]] = words[1]
+                vocabulary[words[0].strip()] = words[1].strip()
                 if len(vocabulary) >= max_size:
                     break
         if len(vocabulary) >= max_size:
