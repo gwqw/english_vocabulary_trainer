@@ -6,6 +6,7 @@
 """
 import os
 import random
+import readline
 import sys
 import typing as tp
 from dataclasses import dataclass
