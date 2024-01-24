@@ -64,8 +64,10 @@ def _read_vocabulary(*vocabulary_paths: tp.List[str], max_size: int = -1) -> tp.
         with open(vocabulary_path) as f:
             for line in f:
                 line = line.strip()
-                if not line or SEP not in line:
+                if not line:
                     continue
+                if SEP not in line:
+                    raise RuntimeError(f"line {line} is without separator '{SEP}', dict file: {vocabulary_path}")
                 words = line.split(SEP, maxsplit=1)
                 assert len(words) == 2
                 vocabulary[words[0].strip()] = words[1].strip()
