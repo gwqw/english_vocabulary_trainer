@@ -6,11 +6,15 @@
 """
 import os
 import random
-import readline
 import sys
 import typing as tp
 from dataclasses import dataclass
 from time import sleep
+
+try:
+    import readline  # noqa: only for linux
+except ImportError:
+    pass
 
 CONFIG_NAME = "english_vocabulary_trainer.cfg"
 SLEEP_TIME = 2
